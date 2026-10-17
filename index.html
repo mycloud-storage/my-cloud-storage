@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Cloud Storage</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fc;
+      color: #17233c;
+    }
+    header {
+      background: #142b52;
+      color: white;
+      padding: 24px 6%;
+    }
+    header h1 { margin: 0 0 8px; }
+    header p { margin: 0; color: #d5e3ff; }
+    main { max-width: 1100px; margin: 28px auto; padding: 0 18px; }
+    .search {
+      width: 100%; padding: 14px; border: 1px solid #d5ddec;
+      border-radius: 12px; font-size: 16px; margin-bottom: 22px;
+    }
+    .cards {
+      display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+      gap: 16px; margin-bottom: 26px;
+    }
+    .card, .files {
+      background: white; padding: 22px; border-radius: 16px;
+      box-shadow: 0 4px 18px #152b5210;
+    }
+    .card h2 { margin-top: 0; font-size: 20px; }
+    .card p { color: #63718a; line-height: 1.6; }
+    button {
+      border: 0; background: #2864df; color: white; padding: 11px 16px;
+      border-radius: 9px; cursor: pointer; font-size: 14px;
+    }
+    button:hover { background: #174db8; }
+    .secondary { background: #e8efff; color: #214fa9; }
+    .file {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 14px 0; border-bottom: 1px solid #edf0f6;
+      flex-wrap: wrap;
+    }
+    .muted { color: #77839a; font-size: 13px; }
+    footer { text-align: center; color: #77839a; padding: 28px; }
+    video { width: 100%; max-height: 450px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>☁️ My Cloud Storage</h1>
+    <p>তোমার ফাইল, তোমার নিজস্ব ডিজিটাল স্পেস</p>
+  </header>
+
+  <main>
+    <input id="search" class="search" placeholder="🔎 ফাইল খুঁজুন..." oninput="filterFiles()">
+
+    <section class="cards">
+      <div class="card">
+        <h2>🔒 Personal Storage</h2>
+        <p>তোমার ব্যক্তিগত ফাইলের জন্য আলাদা জায়গা।</p>
+        <button onclick="alert('ব্যক্তিগত ফাইলের নিরাপদ লগইন ও স্টোরেজ পরের ধাপে যুক্ত হবে।')">Personal Space</button>
+      </div>
+      <div class="card">
+        <h2>🌐 Public Cloud</h2>
+        <p>সবার দেখার ও ডাউনলোড করার জন্য প্রকাশ্য ফাইল।</p>
+        <button onclick="document.getElementById('publicFiles').scrollIntoView({behavior:'smooth'})">Open Public Files</button>
+      </div>
+      <div class="card">
+        <h2>📤 Add a File</h2>
+        <p>এই প্রাথমিক ডেমোতে তোমার কম্পিউটার থেকে ভিডিও বা ফাইল বেছে নিতে পারবে।</p>
+        <input type="file" id="upload" multiple hidden onchange="showFiles()">
+        <button onclick="document.getElementById('upload').click()">Choose Files</button>
+      </div>
+    </section>
+
+    <section class="files" id="publicFiles">
+      <h2>📁 My Files</h2>
+      <p class="muted">এটি প্রাথমিক ডেমো—এখনো অনলাইন ক্লাউডে ফাইল আপলোড হচ্ছে না।</p>
+      <div id="fileList">
+        <div class="file"><span>📄 Welcome.txt</span><span class="muted">Demo file</span></div>
+        <div class="file"><span>🎬 My Videos</span><span class="muted">ভিডিও ফিচার পরে যুক্ত হবে</span></div>
+      </div>
+      <div id="player"></div>
+    </section>
+  </main>
+
+  <footer>My Cloud Storage · Built for personal use</footer>
+
+  <script>
+    function showFiles() {
+      const files = document.getElementById('upload').files;
+      const list = document.getElementById('fileList');
+      for (const file of files) {
+        const row = document.createElement('div');
+        row.className = 'file';
+        const name = document.createElement('span');
+        name.textContent = (file.type.startsWith('video/') ? '🎬 ' : '📄 ') + file.name;
+        const actions = document.createElement('span');
+        if (file.type.startsWith('video/')) {
+          const play = document.createElement('button');
+          play.textContent = 'Play';
+          play.onclick = () => {
+            const player = document.getElementById('player');
+            player.replaceChildren();
+            const video = document.createElement('video');
+            video.controls = true;
+            video.src = URL.createObjectURL(file);
+            player.appendChild(video);
+          };
+          actions.appendChild(play);
+        }
+        const download = document.createElement('button');
+        download.className = 'secondary';
+        download.textContent = 'Download';
+        download.onclick = () => {
+          const url = URL.createObjectURL(file);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = file.name;
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+        actions.appendChild(download);
+        row.append(name, actions);
+        list.appendChild(row);
+      }
+      filterFiles();
+    }
+    function filterFiles() {
+      const query = document.getElementById('search').value.toLowerCase();
+      document.querySelectorAll('#fileList .file').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(query) ? 'flex' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
